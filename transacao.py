@@ -112,17 +112,59 @@ net = MLPClassifier(hidden_layer_sizes = hln,
                     validation_fraction = valRatio,
                     verbose = False)
 
+'''
+A validação cruzada é particularmente útil em situações onde se deseja 
+estimar o quão bem o modelo treinado irá generalizar para novos dados.
+'''
+
+nfolds = 10 # Define o número de folds (partições) para a validação cruzada. 
+            # Neste caso, está definido como 10, o que significa que os dados serão divididos em 10 partes iguais.
+
+scoring = 'accuracy'# Define a métrica de avaliação desejada para o modelo.
+
+scores = cross_val_score(net,
+                         X = X_train_,
+                         y = y_train,
+                         scoring = scoring,
+                         cv = nfolds,
+                         n_jobs = -1)
+
+ax = plt.axes()
+ax.plot(scores,'ro-')                                                      
+ax.set_xticks(range(nfolds),labels=range(1,nfolds+1))  # Plota os scores obtidos em cada fold como pontos vermelhos conectados por uma linha                      
+ax.set(title='Mean ' + scoring + ' =' + f'{100*np.mean(scores):.1f}' + '%', 
+       xlabel='fold', 
+       ylabel=scoring,
+       xlim=[0,nfolds-1])
+ax.grid(visible=True)
+plt.show()
+
+
 net.fit(X_train_,y_train)
 
+# --------------------------------------------
+# Training loss per epoch
+# --------------------------------------------
 plt.figure()
 plt.plot(net.loss_curve_,'b',label='Training set')
 plt.grid()
-plt.plot(net.validation_scores_,'r',label='Validation set')
 plt.xlabel('epoch');
 plt.ylabel('log loss');
 plt.xlim([0,net.n_iter_-1])
-L = list(range(0,net.n_iter_,5))
+L = list(range(0,net.n_iter_,10))
 plt.xticks(ticks=L,labels=[str(i+1) for i in L])
 plt.legend()
-
 plt.show()
+
+# plt.figure()
+# plt.plot(net.loss_curve_,'b',label='Training set')
+# plt.grid()
+# plt.plot(net.validation_scores_,'r',label='Validation set')
+# plt.xlabel('epoch');
+# plt.ylabel('log loss');
+# plt.xlim([0,net.n_iter_-1])
+# L = list(range(0,net.n_iter_,5))
+# plt.xticks(ticks=L,labels=[str(i+1) for i in L])
+# plt.legend()
+
+# plt.show()
